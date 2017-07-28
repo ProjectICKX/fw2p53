@@ -18,7 +18,7 @@
  * @varsion		2.0.0
  */
 
-namespace ickx\fw2\security\validators\traits;
+namespace ickx\fw2\security\validators\classes;
 
 use ickx\fw2\vartype\arrays\Arrays;
 use ickx\fw2\international\encoding\Encoding;
@@ -59,7 +59,7 @@ class ValidateTrait {
 			'int'			=> array(function ($value, $options, $meta = array()) {return is_int(filter_var($value, \FILTER_VALIDATE_INT)) && 0 === preg_match("/\A[^0-9\-\+eEx]\z/", $value);}, '{:title}には整数を入力してください。'),
 			'positive_int'	=> array(function ($value, $options, $meta = array()) {return filter_var($value, \FILTER_VALIDATE_INT) > -1;}, '{:title}には正の整数を入力してください。'),
 			'negative_int'	=> array(function ($value, $options, $meta = array()) {return filter_var($value, \FILTER_VALIDATE_INT) < 1;}, '{:title}には負の整数を入力してください。'),
-			'int_length'	=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('length' => Arrays::AdjustArray(options, array(0, 'length'))), $options);}, '{:title}は{:length:0}桁入力してください。'),
+			'int_length'	=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('length' => Arrays::AdjustValue(options, array(0, 'length'))), $options);}, '{:title}は{:length:0}桁入力してください。'),
 			'int_range'		=> array(function ($value, $options, $meta = array()) {return is_int(filter_var($value, \FILTER_VALIDATE_INT, $options));}, '{:title}には{:min_range:0}から{:max_range:1}までの間の半角数値を入力してください。'),
 			'int_min_range'	=> array(function ($value, $options, $meta = array()) {return is_int(filter_var($value, \FILTER_VALIDATE_INT, array('min_range' => $options['min_range'])));}, '{:title}には{:min_range:0}以上の半角数値を入力してください。'),
 			'int_max_range'	=> array(function ($value, $options, $meta = array()) {return is_int(filter_var($value, \FILTER_VALIDATE_INT, array('max_range' => $options['max_range'])));}, '{:title}には{:max_range:0}以下の半角数値を入力してください。'),
@@ -67,8 +67,8 @@ class ValidateTrait {
 			'float'			=> array(function ($value, $options, $meta = array()) {return is_float(filter_var($value, \FILTER_VALIDATE_FLOAT)) && 0 === preg_match("/\A[^0-9\-\+eEx\.]\z/", $value);}, '{:title}には実数を入力してください。'),
 
 			//bit演算
-			'bit_any'		=> array(function  ($value, $options, $meta = array()) {$value = (int) $value;return $value !== 0 && $value === ($value & Arrays::AdjustArray($options, array(0, 'bit'), 0));}, '{:title}には有効なbit値を入力してください。'),
-			'bit_or'		=> array(function  ($value, $options, $meta = array()) {$value = (int) $value;return $value !== 0 && $value === ($value & Arrays::AdjustArray($options, array(0, 'bit'), 0));}, '{:title}には有効なbit値を入力してください。'),
+			'bit_any'		=> array(function  ($value, $options, $meta = array()) {$value = (int) $value;return $value !== 0 && $value === ($value & Arrays::AdjustValue($options, array(0, 'bit'), 0));}, '{:title}には有効なbit値を入力してください。'),
+			'bit_or'		=> array(function  ($value, $options, $meta = array()) {$value = (int) $value;return $value !== 0 && $value === ($value & Arrays::AdjustValue($options, array(0, 'bit'), 0));}, '{:title}には有効なbit値を入力してください。'),
 
 			//型
 			'is_array'		=> array(function ($value, $options, $meta = array()) {return is_array($value);}, '{:title}には配列を設定してください。'),
@@ -147,45 +147,45 @@ class ValidateTrait {
 			'exists_dns_record_mx'	=> array(function ($value, $options, $meta = array()) {return count(dns_get_record($value, DNS_MX)) !== 0;}, '{:title}には存在するホスト名を入力してください。'),
 
 			//範囲
-			'range'			=> array(function ($value, $options, $meta = array()) {return static::Range($value, $options, Arrays::AdjustArray($options, 'format'), $options);}, '{:title}には{:min_range:0}から{:max_range:1}までの間の値を入力してください。'),
-			'min_range'		=> array(function ($value, $options, $meta = array()) {return static::Range($value, array('min_range' => Arrays::AdjustArray($options, array(0, 'min_range'))), Arrays::AdjustArray($options, 'format'), $options);}, '{:title}には{:min_range:0}以上の値を入力してください。'),
-			'max_range'		=> array(function ($value, $options, $meta = array()) {return static::Range($value, array('max_range' => Arrays::AdjustArray($options, array(1, 'max_range'))), Arrays::AdjustArray($options, 'format'), $options);}, '{:title}には{:max_range:0}以下の値を入力してください。'),
+			'range'			=> array(function ($value, $options, $meta = array()) {return static::Range($value, $options, Arrays::AdjustValue($options, 'format'), $options);}, '{:title}には{:min_range:0}から{:max_range:1}までの間の値を入力してください。'),
+			'min_range'		=> array(function ($value, $options, $meta = array()) {return static::Range($value, array('min_range' => Arrays::AdjustValue($options, array(0, 'min_range'))), Arrays::AdjustValue($options, 'format'), $options);}, '{:title}には{:min_range:0}以上の値を入力してください。'),
+			'max_range'		=> array(function ($value, $options, $meta = array()) {return static::Range($value, array('max_range' => Arrays::AdjustValue($options, array(1, 'max_range'))), Arrays::AdjustValue($options, 'format'), $options);}, '{:title}には{:max_range:0}以下の値を入力してください。'),
 
 			//日付
-			'date'			=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustArray($options, 'format', static::YMD));}, '{:title}には{:format:0}形式の日付を入力してください。'),
-			'time'			=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustArray($options, 'format', static::HIS));}, '{:title}には{:format:0}形式の時間を入力してください。'),
-			'datetime'		=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustArray($options, 'format', static::YMD_HIS));}, '{:title}には{:format:0}形式の日付と時間を入力してください。'),
+			'date'			=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustValue($options, 'format', static::YMD));}, '{:title}には{:format:0}形式の日付を入力してください。'),
+			'time'			=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustValue($options, 'format', static::HIS));}, '{:title}には{:format:0}形式の時間を入力してください。'),
+			'datetime'		=> array(function ($value, $options, $meta = array()) {return static::DateTime($value, Arrays::AdjustValue($options, 'format', static::YMD_HIS));}, '{:title}には{:format:0}形式の日付と時間を入力してください。'),
 
 			//文字列長さ
-			'length'			=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('length' => Arrays::AdjustArray($options, array(0, 'length'))), $options);}, '{:title}は{:length:0}文字入力してください。'),
+			'length'			=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('length' => Arrays::AdjustValue($options, array(0, 'length'))), $options);}, '{:title}は{:length:0}文字入力してください。'),
 			'between_length'	=> array(function ($value, $options, $meta = array()) {return static::Length($value, $options, $options);}, '{:title}は{:min_length:0}文字以上{:max_length:1}文字以内で入力してください。'),
-			'max_length'		=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('max_length' => Arrays::AdjustArray($options, array(0, 'max_length'))), $options);}, '{:title}は{:max_length:0}文字以内で入力してください。'),
-			'min_length'		=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('min_length' => Arrays::AdjustArray($options, array(0, 'min_length'))), $options);}, '{:title}は{:min_length:0}文字以上入力してください。'),
+			'max_length'		=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('max_length' => Arrays::AdjustValue($options, array(0, 'max_length'))), $options);}, '{:title}は{:max_length:0}文字以内で入力してください。'),
+			'min_length'		=> array(function ($value, $options, $meta = array()) {return static::Length($value, array('min_length' => Arrays::AdjustValue($options, array(0, 'min_length'))), $options);}, '{:title}は{:min_length:0}文字以上入力してください。'),
 
 			//カラーコード
 			'color_code'	=> array(function ($value, $options, $meta = array()) {return ColorCode::IsHexColorCode($value);}, '{:title}には16進数のカラーコードを入力してください。'),
 
 			//配列
-			'in'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_IN,					Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}に未定義の値が入力されています。'),
-			'not_in'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_IN,				Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}の値は利用できません。'),
+			'in'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_IN,					Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}に未定義の値が入力されています。'),
+			'not_in'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_IN,				Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}の値は利用できません。'),
 			'not_overlap'			=> array(function ($value, $options, $meta = array()) {$tmp = array();foreach ($value as $element) {if (in_array($element, $tmp, true)) {return false;}$tmp[] = $element;}return true;}, '{:title}に重複した値があります。'),
-			'key'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_KEY,				Arrays::AdjustArray($options, array(0, 'key_set')), $options);}, '{:title}に未定義の値が入力されています。'),
-			'key_exists'			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_KEY_EXISTS,			Arrays::AdjustArray($options, array(0, 'key_set')), $options);}, '{:title}に未定義の値が入力されています。'),
-			'any'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_ANY,				Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}に必須項目が含まれていません。'),
-			'any_key_exists'		=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_ANY_KEY_EXISTS	,	Arrays::AdjustArray($options, array(0, 'key_set')), $options);}, '{:title}には{:key_set:0}のいずれかを入力してください。'),
-			'not_any_key_exists'	=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_ANY_KEY_EXISTS,	Arrays::AdjustArray($options, array(0, 'key_set')), $options);}, '{:title}には{:key_set:0}のいずれかを入力してください。'),
+			'key'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_KEY,				Arrays::AdjustValue($options, array(0, 'key_set')), $options);}, '{:title}に未定義の値が入力されています。'),
+			'key_exists'			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_KEY_EXISTS,			Arrays::AdjustValue($options, array(0, 'key_set')), $options);}, '{:title}に未定義の値が入力されています。'),
+			'any'					=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_ANY,				Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}に必須項目が含まれていません。'),
+			'any_key_exists'		=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_ANY_KEY_EXISTS	,	Arrays::AdjustValue($options, array(0, 'key_set')), $options);}, '{:title}には{:key_set:0}のいずれかを入力してください。'),
+			'not_any_key_exists'	=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_ANY_KEY_EXISTS,	Arrays::AdjustValue($options, array(0, 'key_set')), $options);}, '{:title}には{:key_set:0}のいずれかを入力してください。'),
 			//'min'
 			//'max'
 
 			//比較
-			'<'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_LT,			Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}未満の値を入力してください。'),
-			'<='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_LT_EQ,		Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}以下の値を入力してください。'),
-			'>'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_GT,			Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}より上の値を入力してください。'),
-			'>='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_GT_EQ,		Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}以上の値を入力してください。'),
-			'=='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_EQ,			Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と異なります。'),
-			'!='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_EQ,		Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と同じです。'),
-			'==='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_S_EQ,		Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と異なります。'),
-			'!=='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_S_NOT_EQ,	Arrays::AdjustArray($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と同じです。'),
+			'<'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_LT,			Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}未満の値を入力してください。'),
+			'<='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_LT_EQ,		Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}以下の値を入力してください。'),
+			'>'				=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_GT,			Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}より上の値を入力してください。'),
+			'>='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_GT_EQ,		Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}には{:operand:0}以上の値を入力してください。'),
+			'=='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_EQ,			Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と異なります。'),
+			'!='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_NOT_EQ,		Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と同じです。'),
+			'==='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_S_EQ,		Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と異なります。'),
+			'!=='			=> array(function ($value, $options, $meta = array()) {return static::Comparison($value, static::OP_S_NOT_EQ,	Arrays::AdjustValue($options, array(0, 'operand')), $options);}, '{:title}が{:operand:0}と同じです。'),
 
 			//ファイルシステム
 			'file_exists'	=> array(function ($value, $options, $meta = array()) {clearstatcache(true, $value);return file_exists($value);}, 'パス：{:value}は存在しません。'),
@@ -204,12 +204,12 @@ class ValidateTrait {
 
 			//ファイルアップロード
 			'upload_check_status'	=> array(function ($value, $options, $meta = array()) {return static::CheckUploadStatus($value, $options, $meta);}, '{:title}{:adjust}でエラーが発生しました。error code:{:error_code} {:validator_message}'),
-			'upload_range_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], $options, Arrays::AdjustArray($options, 'format'), $options);}, '{:title}はファイルサイズを{:min_range:0}バイトから{:max_range:1}バイトまでの間にしてください。'),
-			'upload_min_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], array('min_range' => Arrays::AdjustArray($options, array(0, 'min_range'))), Arrays::AdjustArray($options, 'format'), $options);}, '{:title}はファイルサイズが{:min_range:0}バイト以上必要です。'),
-			'upload_max_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], array('max_range' => Arrays::AdjustArray($options, array(1, 'max_range'))), Arrays::AdjustArray($options, 'format'), $options);}, '{:title}はファイルサイズが{:max_range:0}バイト以下である必要があります。'),
-			'upload_mimetype'		=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustArray($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
-			'upload_ext'			=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustArray($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
-			'upload_name'			=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustArray($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
+			'upload_range_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], $options, Arrays::AdjustValue($options, 'format'), $options);}, '{:title}はファイルサイズを{:min_range:0}バイトから{:max_range:1}バイトまでの間にしてください。'),
+			'upload_min_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], array('min_range' => Arrays::AdjustValue($options, array(0, 'min_range'))), Arrays::AdjustValue($options, 'format'), $options);}, '{:title}はファイルサイズが{:min_range:0}バイト以上必要です。'),
+			'upload_max_filesize'	=> array(function ($value, $options, $meta = array()) {return static::Range($value['size'], array('max_range' => Arrays::AdjustValue($options, array(1, 'max_range'))), Arrays::AdjustValue($options, 'format'), $options);}, '{:title}はファイルサイズが{:max_range:0}バイト以下である必要があります。'),
+			'upload_mimetype'		=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustValue($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
+			'upload_ext'			=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustValue($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
+			'upload_name'			=> array(function ($value, $options, $meta = array()) {return $value['type'] > Arrays::AdjustValue($options, array(0, 'max'));} ,'{:title}は{:max:0}バイト以上にしてください。'),
 
 			//文字セット
 			'charset_email'			=> array(function ($value, $options, $meta = array()) {$filterd_length = strlen(filter_var($value, \FILTER_SANITIZE_EMAIL));return $filterd_length !== 0 && $filterd_length === strlen($value);}, '{:title}にはemailに利用できる文字を入力してください。'),
@@ -228,7 +228,7 @@ class ValidateTrait {
 			'preg_regex'	=> array(function ($value, $options, $meta = array()) {return filter_var($value, \FILTER_VALIDATE_REGEXP) === $value;}, '{:title}にはPREG互換の正規表現を入力してください。'),
 
 			//正規表現
-			'regex'			=> array(function ($value, $options, $meta = array()) {return preg_match(Arrays::AdjustArray($options, array(0, 'regex')), $value) === 1;}, '{:title}がパターンに一致しません。'),
+			'regex'			=> array(function ($value, $options, $meta = array()) {return preg_match(Arrays::AdjustValue($options, array(0, 'regex')), $value) === 1;}, '{:title}がパターンに一致しません。'),
 
 			//クレジットカード
 			'luhn'			=> array(function ($value, $options, $meta = array()) {for ($i = 0, $digits = strrev($digits), $alt = true, $total = 0; ($str = substr($digits, $i, 1)) !== false;$total += $alt ? $str : ($str < 5 ? $str * 2 : 1 + ($str - 5) * 2), $alt = !$alt, $i++); return $total % 10 === 0;}, '{:title}のチェックディジットが正しくありません。'),
@@ -239,11 +239,11 @@ class ValidateTrait {
 			'zero_padding'	=> array(function ($value, $options, $meta = array()) {return $value === str_pad($value, $options['length'], '0', \STR_PAD_LEFT);}, '{:title}の値が正しくありません。'),
 
 			//HTML
-			'html'				=> array(function ($value, $options, $meta = array()) {return static::Html($value, Arrays::AdjustArray($options, array(0, 'value')), $options);}, '{:title}に利用できない{:validator_message}が含まれています。'),
-			'html_element'		=> array(function ($value, $options, $meta = array()) {return static::HtmlElement($value, Arrays::AdjustArray($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML要素 {:validator_message}が含まれています。'),
-			'html_tag'			=> array(function ($value, $options, $meta = array()) {return static::HtmlElement($value, Arrays::AdjustArray($options, array(0, 'value')), $options);}, '{:title}に利用できないHTMLタグ {:validator_message}が含まれています。'),
-			'html_attribute'	=> array(function ($value, $options, $meta = array()) {return static::HtmlAttribute($value, Arrays::AdjustArray($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML属性 {:validator_message}が含まれています。'),
-			'html_attr'			=> array(function ($value, $options, $meta = array()) {return static::HtmlAttribute($value, Arrays::AdjustArray($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML属性 {:validator_message}が含まれています。'),
+			'html'				=> array(function ($value, $options, $meta = array()) {return static::Html($value, Arrays::AdjustValue($options, array(0, 'value')), $options);}, '{:title}に利用できない{:validator_message}が含まれています。'),
+			'html_element'		=> array(function ($value, $options, $meta = array()) {return static::HtmlElement($value, Arrays::AdjustValue($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML要素 {:validator_message}が含まれています。'),
+			'html_tag'			=> array(function ($value, $options, $meta = array()) {return static::HtmlElement($value, Arrays::AdjustValue($options, array(0, 'value')), $options);}, '{:title}に利用できないHTMLタグ {:validator_message}が含まれています。'),
+			'html_attribute'	=> array(function ($value, $options, $meta = array()) {return static::HtmlAttribute($value, Arrays::AdjustValue($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML属性 {:validator_message}が含まれています。'),
+			'html_attr'			=> array(function ($value, $options, $meta = array()) {return static::HtmlAttribute($value, Arrays::AdjustValue($options, array(0, 'value')), $options);}, '{:title}に利用できないHTML属性 {:validator_message}が含まれています。'),
 
 			//コールバック
 			'callback'		=> array(function ($value, $options, $meta = array()) {return static::Callback($value, $options, $meta);}, ''),
@@ -386,24 +386,24 @@ class ValidateTrait {
 	 * @return	bool	検証に合格した場合:true、検証に失敗した場合:false
 	 */
 	public static function Length ($value, $length_set, $options) {
-		$filter = Arrays::AdjustArray($options, 'filter');
+		$filter = Arrays::AdjustValue($options, 'filter');
 		if (is_callable($filter)) {
 			$value = $filter($value);
 		}
 
 		if (!is_array($value)) {
-			$encoding = Arrays::AdjustArray($length_set, 'encoding', Encoding::DEFAULT_ENCODING);
+			$encoding = Arrays::AdjustValue($length_set, 'encoding', Encoding::DEFAULT_ENCODING);
 			$string_length = Strings::Length($value, $encoding);
 		} else {
 			$string_length = count($value);
 		}
 
-		if (($length = Arrays::AdjustArray($length_set, 'length')) !== null) {
+		if (($length = Arrays::AdjustValue($length_set, 'length')) !== null) {
 			return $string_length === $length;
 		}
 
-		$min_length = Arrays::AdjustArray($length_set, array(0, 'min_length'));
-		$max_length = Arrays::AdjustArray($length_set, array(1, 'max_length'));
+		$min_length = Arrays::AdjustValue($length_set, array(0, 'min_length'));
+		$max_length = Arrays::AdjustValue($length_set, array(1, 'max_length'));
 
 		if ($min_length === null) {
 			return $string_length <= $max_length;
@@ -425,8 +425,8 @@ class ValidateTrait {
 	 * @return	bool	検証に合格した場合:true、検証に失敗した場合:false
 	 */
 	public static function Range ($value, $range_set, $type = null, $options = array()) {
-		$min_range= Arrays::AdjustArray($range_set, array(0, 'min_range'));
-		$max_range= Arrays::AdjustArray($range_set, array(1, 'max_range'));
+		$min_range= Arrays::AdjustValue($range_set, array(0, 'min_range'));
+		$max_range= Arrays::AdjustValue($range_set, array(1, 'max_range'));
 
 		$converter = static::GetConverter($type);
 
@@ -460,7 +460,7 @@ class ValidateTrait {
 	 * @return	bool	検証に合格した場合:true、検証に失敗した場合:false
 	 */
 	public static function Comparison ($value, $operator, $operand, $options) {
-		$converter = static::GetConverter(Arrays::AdjustArray($options, 'type'));
+		$converter = static::GetConverter(Arrays::AdjustValue($options, 'type'));
 		if (is_callable($converter)) {
 			$value		= $converter($value);
 			$operand	= $converter($operand);
@@ -474,8 +474,8 @@ class ValidateTrait {
  			$operand = $operand($operator, $operand, $options);
  		}
 
-		if (($empty_skip_type = Arrays::AdjustArray($options, 'have_to_skip', false)) !== false) {
-			if (static::TwoValueEmptyChecker($value, $operand, $empty_skip_type, Arrays::AdjustArray($options, 'empty_filter'))) {
+		if (($empty_skip_type = Arrays::AdjustValue($options, 'have_to_skip', false)) !== false) {
+			if (static::TwoValueEmptyChecker($value, $operand, $empty_skip_type, Arrays::AdjustValue($options, 'empty_filter'))) {
 				return true;
 			}
 		}
@@ -498,12 +498,12 @@ class ValidateTrait {
 			case static::OP_S_NOT_EQ:
 				return $value !== $operand;
 			case static::OP_IN:
-				return in_array($value, Arrays::AdjustArray($operand), true);
+				return in_array($value, Arrays::AdjustValue($operand), true);
 			case static::OP_ANY:
-				$ret = array_intersect(Arrays::AdjustArray($value), Arrays::AdjustArray($operand));
+				$ret = array_intersect(Arrays::AdjustValue($value), Arrays::AdjustValue($operand));
 				return !empty($ret);
 			case static::OP_NOT_IN:
-				return !in_array($value, Arrays::AdjustArray($operand), true);
+				return !in_array($value, Arrays::AdjustValue($operand), true);
 			case static::OP_KEY_EXISTS:
 			case static::OP_KEY:
 				return isset($operand[$value]) || array_key_exists($value, $operand);
@@ -608,27 +608,27 @@ class ValidateTrait {
 	}
 
 	public static function Url ($value, $options, $meta = array()) {
-		if (false === filter_var($value, \FILTER_VALIDATE_URL, \FILTER_FLAG_SCHEME_REQUIRED | \FILTER_FLAG_HOST_REQUIRED | (Arrays::AdjustArray($options, array('filter', '0'), 0)))) {
+		if (false === filter_var($value, \FILTER_VALIDATE_URL, \FILTER_FLAG_SCHEME_REQUIRED | \FILTER_FLAG_HOST_REQUIRED | (Arrays::AdjustValue($options, array('filter', '0'), 0)))) {
 			return false;
 		}
 
 		$ret = parse_url($value);
-		$scheme = Arrays::AdjustArray($ret, 'scheme', '');
+		$scheme = Arrays::AdjustValue($ret, 'scheme', '');
 		if ($scheme !== 'http' && $scheme !== 'https') {
 			return false;
 		}
 
-		$host = Arrays::AdjustArray($ret, 'host', '');
+		$host = Arrays::AdjustValue($ret, 'host', '');
 		if (!static::Hostname($host) && filter_var($host, \FILTER_VALIDATE_IP) !== $host) {
 			return false;
 		}
 
-		$accept_host = (array) (Arrays::AdjustArray($options, array('accept_host', 0, 'localhost')));
+		$accept_host = (array) (Arrays::AdjustValue($options, array('accept_host', 0, 'localhost')));
 		if (in_array($host, $accept_host, true)) {
 			return true;
 		}
 
-		$accept_pattern_list = (array) (Arrays::AdjustArray($options, 'accept_pattern', array()));
+		$accept_pattern_list = (array) (Arrays::AdjustValue($options, 'accept_pattern', array()));
 		foreach ($accept_pattern_list as $accept_pattern) {
 			if (preg_match(sprintf("@\A%s\z@", $accept_pattern), $host) === 1) {
 				return true;
@@ -651,7 +651,7 @@ class ValidateTrait {
 	 * HTML文字列中に指定された要素と属性の組み合わせが存在しないか検証を行います。
 	 */
 	public static function Html ($value, $targets, $options = array()) {
-		$encoding	= Arrays::AdjustArray($options, 'encoding', mb_internal_encoding());
+		$encoding	= Arrays::AdjustValue($options, 'encoding', mb_internal_encoding());
 
 		$result = array();
 
@@ -683,7 +683,7 @@ class ValidateTrait {
 		foreach ($targets as $tag => $attrs) {
 			if (is_int($tag)) {
 				foreach ((array) $attrs as $tag) {
-					$elements_cache[$tag] = Arrays::AdjustArray($elements_cache, $tag, $dom->getElementsByTagName($tag));
+					$elements_cache[$tag] = Arrays::AdjustValue($elements_cache, $tag, $dom->getElementsByTagName($tag));
 					if ($elements_cache[$tag]->length> 0) {
 						$result['tag'][$tag] = $tag;
 					}
@@ -692,7 +692,7 @@ class ValidateTrait {
 				continue;
 			}
 
-			$elements_cache[$tag] = Arrays::AdjustArray($elements_cache, $tag, $dom->getElementsByTagName($tag));
+			$elements_cache[$tag] = Arrays::AdjustValue($elements_cache, $tag, $dom->getElementsByTagName($tag));
 			if ($elements_cache[$tag]->length > 0) {
 				foreach ((array) $attrs as $attr) {
 					foreach ($elements_cache[$tag] as $element) {
@@ -727,7 +727,7 @@ class ValidateTrait {
 	 * HTML文字列中に指定された要素が存在しないか検証を行います。
 	 */
 	public static function HtmlElement ($value, $targets, $options = array()) {
-		$encoding	= Arrays::AdjustArray($options, 'encoding', mb_internal_encoding());
+		$encoding	= Arrays::AdjustValue($options, 'encoding', mb_internal_encoding());
 
 //		$html = static::SanitizeControlCode($html);
 //		$html = static::SanitizeUnicodeControlCode($html);
@@ -754,7 +754,7 @@ class ValidateTrait {
 	 * HTML文字列中に指定された属性が存在しないか検証を行います。
 	 */
 	public static function HtmlAttribute ($value, $targets, $options = array()) {
-		$encoding	= Arrays::AdjustArray($options, 'encoding', mb_internal_encoding());
+		$encoding	= Arrays::AdjustValue($options, 'encoding', mb_internal_encoding());
 
 		$html = sprintf('<?xml version="1.0" encoding="%s"?><root>%s</root>', $encoding, $value);
 
@@ -777,7 +777,7 @@ class ValidateTrait {
 	}
 
 	public static function CheckUploadStatus ($value, $options, $meta = array()) {
-		$error_code = Arrays::AdjustArray($value, 'error');
+		$error_code = Arrays::AdjustValue($value, 'error');
 		if ($error_code === \UPLOAD_ERR_OK) {
 			return true;
 		}
@@ -793,9 +793,9 @@ class ValidateTrait {
 		);
 
 		return array(
-			'adjust'			=> Arrays::AdjustArray($options, 'is_array', false) ? 'の{:loop_index}個目のファイル' : '',
+			'adjust'			=> Arrays::AdjustValue($options, 'is_array', false) ? 'の{:loop_index}個目のファイル' : '',
 			'error_code'		=> $error_code,
-			'validator_message'	=> Arrays::AdjustArray($upload_error_list, $error_code, '不明なエラーが発生しました。'),
+			'validator_message'	=> Arrays::AdjustValue($upload_error_list, $error_code, '不明なエラーが発生しました。'),
 		);
 	}
 }

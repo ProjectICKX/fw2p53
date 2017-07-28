@@ -1,0 +1,5 @@
+.buildpath
+.project
+.vagrant
+composer.lock
+composer.phar

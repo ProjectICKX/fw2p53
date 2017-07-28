@@ -115,7 +115,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 	 */
 	public static function Rule ($rule_name, $value, $options = array(), $meta = array()) {
 		$rule_list = static::GetValidateRuleList();
-		if ($rule = Arrays::AdjustArray($rule_list, $rule_name)) {
+		if ($rule = Arrays::AdjustValue($rule_list, $rule_name)) {
 			return (is_callable($rule[0]) || is_array($rule[0])) ? $rule[0]($value, $options, $meta) : preg_match($rule[0], $value) === 1;
 		}
 		throw CoreException::RaiseSystemError('Validation not found. Rule name:%s', array($rule_name));
@@ -127,7 +127,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 	 * @param	mixed	$data			検証対象データ
 	 * @param	array	$data_rule_list	検証ルールリスト
 	 * @param	mixed	$data_name		検証対象名
-	 * @param	array	$before_errors		先行検証分のエラーリスト
+	 * @param	array	$before_errors	先行検証分のエラーリスト
 	 * @param	array	$meta			メタ情報
 	 * @return	mixed	検証に合格した場合:null、検証に失敗した場合:エラーメッセージの入ったリスト
 	 * @throws	\ickx\fw2\core\exception\CoreException	検証ルールが実在しなかった場合
@@ -171,7 +171,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			//==============================================
 			// 特殊系対応
 			//==============================================
-			$is_upload_file = Arrays::AdjustArray($rule_list, 'source') === 'upload';
+			$is_upload_file = Arrays::AdjustValue($rule_list, 'source') === 'upload';
 
 			//==============================================
 			//ルールごとの初期化
@@ -180,13 +180,13 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			$rule_list = is_string($rule_list) ? array(static::RULE_NOT_EMPTY) : $rule_list;
 
 			//強制検証フラグが有効な場合、フラグを変数化する
-			$config_force_validate = Arrays::AdjustArray($rule_list, static::CONFIG_FORCE_VALIDATE, false);
+			$config_force_validate = Arrays::AdjustValue($rule_list, static::CONFIG_FORCE_VALIDATE, false);
 
 			//強制上書きフラグの取得
-			$config_force_use_value = Arrays::AdjustArray($rule_list, static::CONFIG_FORCE_USE_VALUE, false);
+			$config_force_use_value = Arrays::AdjustValue($rule_list, static::CONFIG_FORCE_USE_VALUE, false);
 
 			//対象データの取得：フォースバリューが設定されている場合は強制上書き
-			$target_value = $is_upload_file ? static::AdjustUploadFile($data, $data_name) : (Arrays::AdjustArray($data, $data_name));
+			$target_value = $is_upload_file ? static::AdjustUploadFile($data, $data_name) : (Arrays::AdjustValue($data, $data_name));
 
 			if (isset($rule_list[static::CONFIG_USE_CURRENT_DATA]) && static::CONFIG_USE_CURRENT_DATA) {
 				$target_value = array($data_name => $data);
@@ -212,12 +212,12 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			}
 
 			//フィルタが有効な場合はフィルタをかける
-			if (($filter = Arrays::AdjustArray($rule_list, static::CONFIG_FILTER)) && is_callable($filter)) {
+			if (($filter = Arrays::AdjustValue($rule_list, static::CONFIG_FILTER)) && is_callable($filter)) {
 				$target_value = $filter($target_value);
 			}
 
 			//NULL時スキップフラグがある場合は次のデータへ
-			if ((Arrays::AdjustArray($rule_list, static::CONFIG_NULL_SKIP)) && !static::Rule(static::RULE_REQUIRE, $target_value)) {
+			if ((Arrays::AdjustValue($rule_list, static::CONFIG_NULL_SKIP)) && !static::Rule(static::RULE_REQUIRE, $target_value)) {
 				continue;
 			}
 
@@ -257,10 +257,10 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			}
 
 			//例外対応フラグの取得
-			$config_raise_exception = Arrays::AdjustArray($rule_list, static::CONFIG_RAISE_EXCEPTION, false);
+			$config_raise_exception = Arrays::AdjustValue($rule_list, static::CONFIG_RAISE_EXCEPTION, false);
 
 			//エラー時停止フラグの取得
-			$config_is_last = Arrays::AdjustArray($rule_list, static::CONFIG_IS_LAST,false);
+			$config_is_last = Arrays::AdjustValue($rule_list, static::CONFIG_IS_LAST,false);
 
 			//値によるバリデーションセットの切り替え
 			if (isset($rule_list[static::CONTIG_SET_VALIDATE_TYPE]) && is_callable($rule_list[static::CONTIG_SET_VALIDATE_TYPE])) {
@@ -281,18 +281,18 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			//オプションの初期化
 			//----------------------------------------------
 			//ルール共通prefixの取得
-			$prefix = Arrays::AdjustArray($rule_list, static::CONFIG_PREFIX, '');
+			$prefix = Arrays::AdjustValue($rule_list, static::CONFIG_PREFIX, '');
 
 			//ルール共通safixの取得
-			$safix = Arrays::AdjustArray($rule_list, static::CONFIG_SAFIX, '');
+			$safix = Arrays::AdjustValue($rule_list, static::CONFIG_SAFIX, '');
 
 			//単語置換帖
 			$message_list = array();
-			foreach (Arrays::AdjustArray($rule_list, static::CONFIG_VARS, array()) as $target => $text) {
+			foreach (Arrays::AdjustValue($rule_list, static::CONFIG_VARS, array()) as $target => $text) {
 				$message_list[$target] = $text;
 			}
 
-			if ($title = Arrays::AdjustArray($rule_list, static::CONFIG_TITLE)) {
+			if ($title = Arrays::AdjustValue($rule_list, static::CONFIG_TITLE)) {
 				$message_list[static::CONFIG_TITLE] = $title;
 			}
 
@@ -301,7 +301,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			}
 
 			//error配列に登録する名前
-			$error_form_name = Arrays::AdjustArray($rule_list, array(static::CONFIG_FORCE_ERROR, static::CONFIG_NAME), $data_name);
+			$error_form_name = Arrays::AdjustValue($rule_list, array(static::CONFIG_FORCE_ERROR, static::CONFIG_NAME), $data_name);
 
 			//----------------------------------------------
 			//実行前最終調整
@@ -381,7 +381,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 				}
 
 				//強制検証フラグの初期化
-				$option_force_validate = Arrays::AdjustArray($options, static::OPTION_FORCE_VALLIDATE, $config_force_validate);
+				$option_force_validate = Arrays::AdjustValue($options, static::OPTION_FORCE_VALLIDATE, $config_force_validate);
 
 				//----------------------------------------------
 				//検証
@@ -390,7 +390,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 				$work_value = $target_value;
 
 				//キーを見る設定にされている場合はarray_keysをかける
-				if (Arrays::AdjustArray($options, static::OPTION_SEE_ARRAY_KEYS, false)) {
+				if (Arrays::AdjustValue($options, static::OPTION_SEE_ARRAY_KEYS, false)) {
 					if (!static::Rule(static::RULE_IS_ARRAY, $work_value, $options) && !$work_value instanceof \ArrayObject) {
 						throw \ickx\fw2\core\exception\CoreException::RaiseSystemError('array_keysオプションが与えられていますが値が配列ではありません。is_arrayオプション使用時はそれより前にis_arrayルールで値を検証してください。 value:%s', array($target_value));
 					}
@@ -403,7 +403,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 				}
 
 				//対象を配列と見なさない場合、更に一段深くする
-				if (Arrays::AdjustArray($options, static::OPTION_NOT_DEAL_ARRAY, false)) {
+				if (Arrays::AdjustValue($options, static::OPTION_NOT_DEAL_ARRAY, false)) {
 					$work_value = array($work_value);
 				} else {
 					//ルールに突合させて検証
@@ -421,7 +421,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 				//強制検証フラグが無効な場合の処理
 				if (!$option_force_validate) {
 					//ルールレベルでの空時スキップ判定時はスキップされない
-					if (Arrays::AdjustArray($options, static::OPTION_EMPTY_SKIP, false) && static::Rule(static::RULE_NOT_EMPTY, $work_value)) {
+					if (Arrays::AdjustValue($options, static::OPTION_EMPTY_SKIP, false) && static::Rule(static::RULE_NOT_EMPTY, $work_value)) {
 					continue;
 				}
 
@@ -447,7 +447,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 				}
 
 				//is array modeが有効か確認
-				$mode_is_array = Arrays::AdjustArray($options, static::RULE_IS_ARRAY, false);
+				$mode_is_array = Arrays::AdjustValue($options, static::RULE_IS_ARRAY, false);
 
 				//ループ回数カウント
 				$idx = 0;
@@ -488,7 +488,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 						}
 
 						//ルールセットにおいて例外判定がある場合は次の処理へ
-						if ((Arrays::AdjustArray($options, static::OPTION_RAISE_EXCEPTION, $config_raise_exception)) || $stop_after === static::OPTION_RAISE_EXCEPTION) {
+						if ((Arrays::AdjustValue($options, static::OPTION_RAISE_EXCEPTION, $config_raise_exception)) || $stop_after === static::OPTION_RAISE_EXCEPTION) {
 							if (is_array($value)) {
 								$value = implode(', ', $value);
 							}
@@ -496,7 +496,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 						}
 
 						//ルールセットにおいて末尾判定がある場合は次の処理へ
-						$is_last = (Arrays::AdjustArray($options, static::OPTION_IS_LAST, $config_is_last)) || $stop_after === static::OPTION_IS_LAST;
+						$is_last = (Arrays::AdjustValue($options, static::OPTION_IS_LAST, $config_is_last)) || $stop_after === static::OPTION_IS_LAST;
 						if ($mode_is_array !== true && $is_last) {
 							break 2;
 						}
@@ -530,7 +530,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 	 */
 	public static function CreateErrorMessage ($rule_name, $message_list = array(), $validator_message = array(), $prefix = '', $safix = '', $options = array(), $value = null, $meta = array()) {
 		//エラーメッセージの構築
-		$ret = Arrays::AdjustArray($options, 'message', static::GetErrorMessage($rule_name));
+		$ret = Arrays::AdjustValue($options, 'message', static::GetErrorMessage($rule_name));
 		if (is_object($ret) && is_callable($ret)) {
 			$ret = $ret($value, $options, $meta);
 		}
@@ -564,7 +564,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 									continue 2;
 								}
 							}
-							$message = Arrays::AdjustArray($message_list, Arrays::AdjustArray($stage, 2, ''), $stage[0]);
+							$message = Arrays::AdjustValue($message_list, Arrays::AdjustValue($stage, 2, ''), $stage[0]);
 						continue;
 					}
 				}
@@ -685,11 +685,11 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 		//起動検証と初期化
 		//==============================================
 		//ターゲット関数の取得
-		$function_name = Arrays::AdjustArray($options, 0);
-		$function_name = $function_name ?: Arrays::AdjustArray($options, 'function');
+		$function_name = Arrays::AdjustValue($options, 0);
+		$function_name = $function_name ?: Arrays::AdjustValue($options, 'function');
 
 		//引数の取得
-		$args = Arrays::AdjustArray($options, 'args', array());
+		$args = Arrays::AdjustValue($options, 'args', array());
 
 		//呼び出し可能か検証
 		if (!is_callable($function_name, false, $callable_name)) {
@@ -730,7 +730,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 	}
 
 	public static function AdjustUploadFile ($data, $data_name) {
-		$multiple = is_array(Arrays::AdjustArray(Arrays::AdjustArray($data, 'name', array()), $data_name));
+		$multiple = is_array(Arrays::AdjustValue(Arrays::AdjustValue($data, 'name', array()), $data_name));
 
 		$files = array();
 		if ($multiple) {
@@ -753,7 +753,7 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 			}
 		}
 
-		return $multiple ? (empty($files) ? null : $files) : Arrays::AdjustArray($files, 0);
+		return $multiple ? (empty($files) ? null : $files) : Arrays::AdjustValue($files, 0);
 	}
 
 	/**
@@ -892,11 +892,11 @@ class Validator extends classes\ValidateTrait implements \ickx\fw2\date_time\int
 	 * @param	string	$name	クラス変数名
 	 */
 	public static function RemoveClassVar ($name) {
-		$name = Arrays::AdjustArray($name);
-		if (Arrays::AdjustValue(static::$_ClassVariableTrait_ConstList, implode('=>', Arrays::AdjustArray($name)))) {
+		$name = Arrays::AdjustValue($name);
+		if (Arrays::AdjustValue(static::$_ClassVariableTrait_ConstList, implode('=>', Arrays::AdjustValue($name)))) {
 			throw CoreException::RaiseSystemError('%s is constant', array(implode(' => ', $name)));
 		}
 		static::$_ClassVariableTrait_Data = Arrays::RemoveLowest(static::$_ClassVariableTrait_Data, $name);
-		unset(static::$_ClassVariableTrait_ConstList[implode('=>', Arrays::AdjustArray($name))]);
+		unset(static::$_ClassVariableTrait_ConstList[implode('=>', Arrays::AdjustValue($name))]);
 	}
 }
